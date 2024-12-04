@@ -4,6 +4,7 @@ import Stripe from 'stripe';
 import { PaymentSessionDto } from './dto/payment-session.dto';
 import { Request, Response } from 'express';
 import { CLIENT_RENEG_LIMIT } from 'tls';
+import { env } from 'process';
 
 @Injectable()
 export class PaymentsService {
@@ -37,8 +38,8 @@ export class PaymentsService {
 
             line_items: lineItems,
             mode:'payment',
-            success_url:'http://localhost:3000/payments/success',
-            cancel_url:'http://localhost:3000/payments/cancel'
+            success_url:envs.stripeSuccessUrl,
+            cancel_url:envs.stripeCancelUrl
 
         })
 
@@ -49,7 +50,7 @@ export class PaymentsService {
     async stripeWebhook(req:Request, res:Response){
         const sig= req.headers['stripe-signature'];
         let event:Stripe.Event;
-        const endpointSecret='whsec_nxs3hdObM6b638fSU51EAmZG2jBggZAw'
+        const endpointSecret=envs.stripeEndpointSecret
        
         try {
             event=this.stripe.webhooks.constructEvent(req['rawBody'], 
